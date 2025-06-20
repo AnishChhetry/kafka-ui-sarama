@@ -28,9 +28,6 @@ This project provides a web-based UI for managing and monitoring Apache Kafka cl
 └── README.md        # Project documentation
 ```
 
-### About the `contexts` Folder
-The `contexts` folder in the frontend contains React Contexts and Providers for managing shared state across the application. For example, `MessageFormContext.js` provides state and logic for the message production form. Add more context files here as your app grows and you need to share additional global state (e.g., authentication, theme, notifications).
-
 ## Backend (Go)
 - **API Endpoints:**
   - `/api/login` – JWT login
@@ -83,7 +80,7 @@ The `contexts` folder in the frontend contains React Contexts and Providers for 
    - Node.js: [nodejs.org/](https://nodejs.org/)
 2. **Clone the repository**
    ```sh
-   git clone <repository-url>
+   git clone https://github.com/AnishChhetry/kafka-ui-sarama.git
    cd kafka-ui-sarama
    ```
 3. **Start Backend**
