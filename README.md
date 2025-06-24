@@ -1,7 +1,51 @@
-# Kafka UI Project
+# Kafka UI
 
-## Overview
-This project provides a web-based UI for managing and monitoring Apache Kafka clusters. It consists of a Go-based backend API and a React-based frontend. The backend handles Kafka operations and authentication, while the frontend offers a modern, user-friendly interface for interacting with Kafka topics, messages, brokers, and consumers.
+A web-based UI for managing and monitoring Apache Kafka clusters, built with Go and React.
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Technology Stack](#technology-stack)
+- [Prerequisites](#prerequisites)
+- [Installation & Setup](#installation--setup)
+- [Usage](#usage)
+- [Default Credentials](#default-credentials)
+- [Makefile Commands](#useful-makefile-commands)
+- [Screenshots](#screenshots)
+
+---
+
+## Features
+
+This application provides a comprehensive set of tools for managing and monitoring your Kafka cluster.
+
+### Cluster Management
+- **Dynamic Connection:** Connect to any Kafka broker on the fly without restarting the application.
+- **Cluster Overview:** View a real-time summary of your cluster, including the number of topics, brokers, and consumer groups.
+- **Broker Monitoring:** List all brokers in the cluster and view their connection details.
+
+### Topic Management
+- **View Topics:** Browse a list of all topics in the cluster.
+- **Create Topics:** Create new topics with custom partition counts and replication factors.
+- **Delete Topics:** Remove topics and all their messages permanently.
+- **Partition Insights:** Inspect the partitions for any topic.
+
+### Message Handling
+- **View Messages:** Consume and view messages from any topic in a clean, paginated table.
+- **Produce Messages:** Publish new messages to a specific topic with a key and value.
+- **Delete Messages:** Clear all messages from a topic with a single click.
+
+### Consumer Group Monitoring
+- **List Consumer Groups:** View all registered consumer groups in the cluster.
+
+### Security
+- **User Authentication:** Secure access with JWT-based authentication.
+- **Password Management:** Users can change their own passwords.
+
+---
 
 ## Project Structure
 
@@ -42,7 +86,7 @@ This project provides a web-based UI for managing and monitoring Apache Kafka cl
   - `/api/consumers` – List consumers
   - `/api/brokers` – List brokers
   - `/api/change-password` – Change user password
-- **Authentication:** JWT-based, user data stored in `backend/data/users.csv`.
+- **Authentication:** JWT-based, user data stored in `backend/src/data/users.csv`.
 - **Kafka Integration:** Uses [Sarama](https://github.com/IBM/sarama) for all Kafka operations.
 - **Config:**
   - Server port via `PORT` env var (default: `8080`)
@@ -114,3 +158,36 @@ This project provides a web-based UI for managing and monitoring Apache Kafka cl
 | make install-frontend-deps  | Install frontend (React) dependencies            |
 | make start                  | Start both backend and frontend servers          |
 | make stop                   | Stop all running backend and frontend processes  |
+| make help                   | Shows a list of all available commands.          |
+
+## Screenshots
+
+Below is a gallery of the application's features in action.
+
+| Login & Configuration |
+| :---: |
+| ![Login Page](assets/login.png) |
+| ![Configuration](assets/configuration.png) |
+| *Login and connect to your Kafka cluster.* |
+
+| Dashboard Overview | Topic Management |
+| :---: | :---: |
+| ![Dashboard Overview](assets/dashboard_overview.png) | ![Topics List](assets/topic_list.png) |
+| *Get a real-time summary of your cluster.* | *View, create, and manage topics.* |
+
+| Create Topic & View Messages | Produce Messages |
+| :---: | :---: |
+| ![Create Topic](assets/new_topic.png) | ![Produce Message](assets/produce_message.png) |
+| ![View Messages](assets/view_messages.png) | *Publish messages with keys and values.* |
+| *Create new topics and consume messages.* | |
+
+| Brokers & Consumer Groups |
+| :---: |
+| ![Brokers](assets/brokers.png) |
+| ![Consumers](assets/consumers.png) |
+| *Monitor broker status and consumer groups.* |
+
+| Security |
+| :---: |
+| ![Change Password](assets/change%20password.png) |
+| *Users can manage their own credentials.* |

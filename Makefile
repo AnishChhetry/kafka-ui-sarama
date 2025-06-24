@@ -110,16 +110,14 @@ start:
 	@echo "Default credentials: admin / password"
 	@echo ""
 ifeq ($(OS),Windows_NT)
-	@echo "Starting backend in new window..."
-	@start "Kafka UI Backend" cmd /k "cd backend && go run src/main.go"
-	@timeout /t 3 /nobreak >nul
-	@echo "Starting frontend in new window..."
-	@start "Kafka UI Frontend" cmd /k "cd frontend && npm start"
-	@echo "Both servers started in separate windows."
+	@echo "Starting backend and frontend in separate windows..."
+	@start "Kafka UI Backend" cmd /c start-backend.bat
+	@start "Kafka UI Frontend" cmd /c start-frontend.bat
+	@echo "Both servers are starting in separate windows."
 	@echo "Close the windows to stop the servers."
 else
 	@echo "Starting backend in background..."
-	@cd backend && go run src/main.go &
+	@cd backend/src && go run main.go &
 	@sleep 3
 	@echo "Starting frontend in background..."
 	@cd frontend && npm start &
@@ -132,15 +130,12 @@ endif
 stop:
 	@echo "Stopping all Kafka UI processes..."
 ifeq ($(OS),Windows_NT)
-	@taskkill /F /IM go.exe /T 2>nul || echo "No Go processes found"
-	@taskkill /F /IM node.exe /T 2>nul || echo "No Node.js processes found"
+	@call stop-all.bat
 else
 	@echo "Stopping backend processes..."
 	@pkill -f "go run src/main.go" 2>/dev/null || echo "No Go run processes found"
-	@pkill -f "main" 2>/dev/null || echo "No main processes found"
 	@echo "Stopping frontend processes..."
 	@pkill -f "npm start" 2>/dev/null || echo "No npm start processes found"
-	@pkill -f "react-scripts/scripts/start.js" 2>/dev/null || echo "No react-scripts processes found"
 	@echo "Killing processes by port (fallback)..."
 	@lsof -ti:8080 2>/dev/null | xargs kill -9 2>/dev/null || echo "No processes on port 8080"
 	@lsof -ti:3000 2>/dev/null | xargs kill -9 2>/dev/null || echo "No processes on port 3000"
@@ -170,9 +165,8 @@ quick-start: install-backend-deps install-frontend-deps
 	@echo "Frontend: http://localhost:3000"
 	@echo "Credentials: admin / password"
 ifeq ($(OS),Windows_NT)
-	@start "Kafka UI Backend" cmd /k "cd backend && go run src/main.go"
-	@timeout /t 2 /nobreak >nul
-	@start "Kafka UI Frontend" cmd /k "cd frontend && npm start"
+	@start "Kafka UI Backend" cmd /c start-backend.bat
+	@start "Kafka UI Frontend" cmd /c start-frontend.bat
 else
 	@cd backend && go run src/main.go &
 	@sleep 2
