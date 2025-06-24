@@ -175,11 +175,17 @@ Below is a gallery of the application's features in action.
 | ![Dashboard Overview](assets/dashboard_overview.png) | ![Topics List](assets/topic_list.png) |
 | *Get a real-time summary of your cluster.* | *View, create, and manage topics.* |
 
-| Create Topic & View Messages | Produce Messages |
-| :---: | :---: |
-| ![Create Topic](assets/new_topic.png) | ![Produce Message](assets/produce_message.png) |
-| ![View Messages](assets/view_messages.png) | *Publish messages with keys and values.* |
-| *Create new topics and consume messages.* | |
+| Create Topic, View Messages & Message Details |
+| :---: |
+| ![Create Topic](assets/new_topic.png) |
+| ![View Messages](assets/view_messages.png) |
+| ![Message Details](assets/messagedetails.png) |
+| *Create topics, consume messages, and view message details.* |
+
+| Produce Messages |
+| :---: |
+| ![Produce Message](assets/produce_message.png) |
+| *Publish messages with keys and values.* |
 
 | Brokers & Consumer Groups |
 | :---: |
