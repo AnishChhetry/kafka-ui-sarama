@@ -4,8 +4,9 @@ import (
 	"log"
 	"os"
 
-	"backend/api"
-	"backend/middleware"
+	"backend/internals/api"
+	"backend/internals/middleware"
+	"backend/internals/utils"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -57,7 +58,7 @@ func main() {
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = utils.DefaultPort
 	}
 	if err := r.Run(":" + port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

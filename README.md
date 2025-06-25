@@ -1,5 +1,9 @@
 # Kafka UI
 
+<p align="center">
+  <img src="assets/one_slide_ppt.png" alt="Kafka UI Overview" width="600"/>
+</p>
+
 A web-based UI for managing and monitoring Apache Kafka clusters, built with Go and React.
 
 ---
@@ -50,26 +54,34 @@ This application provides a comprehensive set of tools for managing and monitori
 ## Project Structure
 
 ```
-├── backend/         # Go backend API for Kafka operations and authentication
-│   ├── api/         # API route handlers (topics, messages, brokers, auth)
-│   ├── kafka/       # Kafka client logic and interfaces (using Sarama)
-│   ├── middleware/  # JWT authentication and bootstrap middleware
-│   ├── models/      # Data models (e.g., Topic)
-│   ├── utils/       # Utility functions (CSV user management, responses)
-│   ├── src/         # Main entry point (main.go)
-│   └── data/        # User data (users.csv)
-├── frontend/        # React frontend (UI)
-│   ├── src/         # Source code (components, contexts, main app)
-│   │   ├── components/ # React UI components
-│   │   ├── contexts/   # React Contexts for shared state (e.g., MessageFormContext)
-│   │   ├── App.js      # Main app component
-│   │   ├── api.js      # Axios instance for API requests
-│   │   └── ...         # Other source files
-│   ├── public/      # Static assets
-│   ├── nginx.conf   # Nginx config for deployment (if used)
-│   └── ...          # Config files, dependencies
-├── Makefile         # Cross-platform build commands
-└── README.md        # Project documentation
+├── backend/                  # Go backend API for Kafka operations and authentication
+│   ├── internals/            # Internal Go packages
+│   │   ├── api/              # API route handlers (auth, handlers)
+│   │   ├── kafka/            # Kafka client logic and interfaces (using Sarama)
+│   │   ├── middleware/       # JWT authentication and bootstrap middleware
+│   │   ├── models/           # Data models (e.g., Topic)
+│   │   └── utils/            # Utility functions (CSV, errors, constants, responses)
+│   ├── src/                  # Main entry point (main.go) and data storage
+│   │   └── data/             # User data (users.csv)
+│   ├── go.mod                # Go module definition
+│   └── go.sum                # Go module checksums
+├── frontend/                 # React frontend (UI)
+│   ├── src/                  # Source code (components, contexts, main app)
+│   │   ├── components/       # React UI components
+│   │   ├── contexts/         # React Contexts for shared state (e.g., MessageFormContext)
+│   │   ├── App.js            # Main app component
+│   │   ├── api.js            # Axios instance for API requests
+│   │   └── ...               # Other source files
+│   ├── public/               # Static assets
+│   ├── nginx.conf            # Nginx config for deployment (if used)
+│   ├── package.json          # Frontend dependencies and scripts
+│   └── package-lock.json     # Frontend dependency lock file
+├── assets/                   # Project images and screenshots
+├── Makefile                  # Cross-platform build commands
+├── README.md                 # Project documentation
+├── start-backend.bat         # Windows batch script to start backend
+├── start-frontend.bat        # Windows batch script to start frontend
+└── stop-all.bat              # Windows batch script to stop all services
 ```
 
 ## Backend (Go)

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"backend/kafka"
+	"backend/internals/kafka"
 	"net/http"
 	"strconv"
 

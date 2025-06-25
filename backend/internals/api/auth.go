@@ -2,9 +2,10 @@ package api
 
 import (
 	"net/http"
+	"os"
 	"time"
 
-	"backend/utils"
+	"backend/internals/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -20,7 +21,14 @@ import (
 // Author: [Your Name]
 // Date: [Date]
 
-var jwtSecret = []byte("itiswhatitis") // Must match the one in your middleware
+// Use env var for JWT secret, fallback to constant
+func getJWTSecret() []byte {
+	secret := os.Getenv(utils.JWTSecretKeyEnv)
+	if secret == "" {
+		secret = utils.DefaultJWTSecret
+	}
+	return []byte(secret)
+}
 
 // Login handles user authentication. It validates credentials and returns a JWT token if successful.
 //
@@ -65,7 +73,7 @@ func Login(c *gin.Context) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, err := token.SignedString(jwtSecret)
+	tokenString, err := token.SignedString(getJWTSecret())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return

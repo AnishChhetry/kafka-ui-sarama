@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"backend/kafka"
+	"backend/internals/kafka"
 
 	"github.com/gin-gonic/gin"
 )

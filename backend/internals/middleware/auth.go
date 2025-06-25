@@ -2,14 +2,15 @@ package middleware
 
 import (
 	"net/http"
+	"os"
 	"strings"
 	"time"
+
+	"backend/internals/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
-
-var jwtSecret = []byte("itiswhatitis") // Replace with your secure secret key
 
 // auth.go - Provides JWT authentication middleware for protecting API routes.
 // Validates JWT tokens, extracts user claims, and attaches them to the request context.
@@ -32,7 +33,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
 			}
-			return jwtSecret, nil
+			return getJWTSecret(), nil
 		})
 
 		if err != nil || !token.Valid {
@@ -55,4 +56,13 @@ func JWTMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// Use env var for JWT secret, fallback to constant
+func getJWTSecret() []byte {
+	secret := os.Getenv(utils.JWTSecretKeyEnv)
+	if secret == "" {
+		secret = utils.DefaultJWTSecret
+	}
+	return []byte(secret)
 }
