@@ -1,10 +1,8 @@
 # Kafka UI
 
 <p align="center">
-  <img src="assets/one_slide_ppt.png" alt="Kafka UI Overview" width="600"/>
+  <img src="assets/one_slide_ppt.png" alt="Kafka UI Overview"/>
 </p>
-
-A web-based UI for managing and monitoring Apache Kafka clusters, built with Go and React.
 
 ---
 
