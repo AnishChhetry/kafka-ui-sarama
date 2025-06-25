@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"backend/internals/models"
 	"context"
 	"errors"
 	"fmt"
@@ -86,7 +87,7 @@ func (c *Client) CheckConnection() error {
 
 // ListTopics lists all topics in the Kafka cluster.
 // Returns a slice of Topic and error if listing fails.
-func (c *Client) ListTopics() ([]Topic, error) {
+func (c *Client) ListTopics() ([]models.Topic, error) {
 	topicNames, err := c.client.Topics()
 	if err != nil {
 		return nil, err
@@ -95,13 +96,13 @@ func (c *Client) ListTopics() ([]Topic, error) {
 	if err != nil {
 		return nil, err
 	}
-	var topics []Topic
+	var topics []models.Topic
 	for _, meta := range details {
 		partitionCount := len(meta.Partitions)
 		replicationFactor := 0
-		partitions := []Partition{}
+		partitions := []models.Partition{}
 		for _, p := range meta.Partitions {
-			partitions = append(partitions, Partition{
+			partitions = append(partitions, models.Partition{
 				ID:              int(p.ID),
 				Leader:          int(p.Leader),
 				Replicas:        convertReplicas(p.Replicas),
@@ -112,10 +113,10 @@ func (c *Client) ListTopics() ([]Topic, error) {
 		if partitionCount > 0 {
 			replicationFactor = len(meta.Partitions[0].Replicas)
 		}
-		topics = append(topics, Topic{
+		topics = append(topics, models.Topic{
 			Name:              meta.Name,
 			Partitions:        partitions,
-			ConsumerGroups:    []ConsumerGroup{}, // For now, empty
+			ConsumerGroups:    []models.ConsumerGroup{}, // For now, empty
 			Internal:          meta.IsInternal,
 			PartitionCount:    partitionCount,
 			ReplicationFactor: replicationFactor,
@@ -140,12 +141,12 @@ func (c *Client) CreateTopic(name string, partitions, replicationFactor int) err
 
 // GetPartitionInfo gets partition info for a topic.
 // Returns a slice of PartitionInfo and error if retrieval fails.
-func (c *Client) GetPartitionInfo(topic string) ([]PartitionInfo, error) {
+func (c *Client) GetPartitionInfo(topic string) ([]models.PartitionInfo, error) {
 	meta, err := c.client.Partitions(topic)
 	if err != nil {
 		return nil, err
 	}
-	var infos []PartitionInfo
+	var infos []models.PartitionInfo
 	for _, pid := range meta {
 		leader, err := c.client.Leader(topic, pid)
 		if err != nil {
@@ -159,7 +160,7 @@ func (c *Client) GetPartitionInfo(topic string) ([]PartitionInfo, error) {
 		if err != nil {
 			return nil, err
 		}
-		infos = append(infos, PartitionInfo{
+		infos = append(infos, models.PartitionInfo{
 			Topic:          topic,
 			Partition:      pid,
 			Leader:         leader.ID(),
@@ -175,7 +176,7 @@ func (c *Client) GetPartitionInfo(topic string) ([]PartitionInfo, error) {
 // limit: number of messages to fetch
 // sortOrder: 'oldest' or 'newest'
 // Returns a slice of Message and error if fetching fails.
-func (c *Client) FetchMessages(topic string, limit int, sortOrder string) ([]Message, error) {
+func (c *Client) FetchMessages(topic string, limit int, sortOrder string) ([]models.Message, error) {
 	partitions, err := c.client.Partitions(topic)
 	if err != nil {
 		return nil, err
@@ -198,7 +199,7 @@ func (c *Client) FetchMessages(topic string, limit int, sortOrder string) ([]Mes
 	defer cancel()
 
 	// Channel to collect messages from all partitions
-	messagesChan := make(chan Message, 1000) // Larger buffer
+	messagesChan := make(chan models.Message, 1000) // Larger buffer
 	var wg sync.WaitGroup
 
 	// Calculate how many messages to fetch per partition
@@ -229,7 +230,7 @@ func (c *Client) FetchMessages(topic string, limit int, sortOrder string) ([]Mes
 	}()
 
 	// Collect all messages
-	var messages []Message
+	var messages []models.Message
 	for msg := range messagesChan {
 		messages = append(messages, msg)
 	}
@@ -268,7 +269,7 @@ func (c *Client) FetchMessages(topic string, limit int, sortOrder string) ([]Mes
 }
 
 // fetchNewestFromPartition fetches the newest messages from a partition
-func (c *Client) fetchNewestFromPartition(ctx context.Context, consumer sarama.Consumer, topic string, partition int32, limit int, messagesChan chan<- Message) {
+func (c *Client) fetchNewestFromPartition(ctx context.Context, consumer sarama.Consumer, topic string, partition int32, limit int, messagesChan chan<- models.Message) {
 	newest, err := c.client.GetOffset(topic, partition, sarama.OffsetNewest)
 	if err != nil {
 		return
@@ -294,7 +295,7 @@ func (c *Client) fetchNewestFromPartition(ctx context.Context, consumer sarama.C
 	}
 	defer pc.Close()
 
-	var partitionMessages []Message
+	var partitionMessages []models.Message
 	timeout := time.NewTimer(3 * time.Second)
 	defer timeout.Stop()
 
@@ -308,15 +309,15 @@ func (c *Client) fetchNewestFromPartition(ctx context.Context, consumer sarama.C
 				break
 			}
 
-			msgHeaders := make([]MessageHeader, len(msg.Headers))
+			msgHeaders := make([]models.MessageHeader, len(msg.Headers))
 			for i, h := range msg.Headers {
-				msgHeaders[i] = MessageHeader{
+				msgHeaders[i] = models.MessageHeader{
 					Key:   string(h.Key),
 					Value: string(h.Value),
 				}
 			}
 
-			message := Message{
+			message := models.Message{
 				Topic:     msg.Topic,
 				Partition: msg.Partition,
 				Offset:    msg.Offset,
@@ -358,7 +359,7 @@ sendMessages:
 }
 
 // fetchOldestFromPartition fetches the oldest messages from a partition
-func (c *Client) fetchOldestFromPartition(ctx context.Context, consumer sarama.Consumer, topic string, partition int32, limit int, messagesChan chan<- Message) {
+func (c *Client) fetchOldestFromPartition(ctx context.Context, consumer sarama.Consumer, topic string, partition int32, limit int, messagesChan chan<- models.Message) {
 	newest, err := c.client.GetOffset(topic, partition, sarama.OffsetNewest)
 	if err != nil {
 		return
@@ -392,15 +393,15 @@ func (c *Client) fetchOldestFromPartition(ctx context.Context, consumer sarama.C
 				return
 			}
 
-			msgHeaders := make([]MessageHeader, len(msg.Headers))
+			msgHeaders := make([]models.MessageHeader, len(msg.Headers))
 			for i, h := range msg.Headers {
-				msgHeaders[i] = MessageHeader{
+				msgHeaders[i] = models.MessageHeader{
 					Key:   string(h.Key),
 					Value: string(h.Value),
 				}
 			}
 
-			message := Message{
+			message := models.Message{
 				Topic:     msg.Topic,
 				Partition: msg.Partition,
 				Offset:    msg.Offset,
@@ -440,12 +441,12 @@ func (c *Client) fetchOldestFromPartition(ctx context.Context, consumer sarama.C
 }
 
 // FetchRecentMessages - optimized method for getting recent messages quickly
-func (c *Client) FetchRecentMessages(topic string, limit int) ([]Message, error) {
+func (c *Client) FetchRecentMessages(topic string, limit int) ([]models.Message, error) {
 	return c.FetchMessages(topic, limit, "newest")
 }
 
 // FetchAllMessages - method to get all available messages (use with caution)
-func (c *Client) FetchAllMessages(topic string, sortOrder string) ([]Message, error) {
+func (c *Client) FetchAllMessages(topic string, sortOrder string) ([]models.Message, error) {
 	return c.FetchMessages(topic, 0, sortOrder)
 }
 
@@ -465,7 +466,7 @@ func min(a, b int) int {
 }
 
 // Produce produces a message to a topic
-func (c *Client) Produce(topic, key string, value []byte, partition int32, headers []MessageHeader) error {
+func (c *Client) Produce(topic, key string, value []byte, partition int32, headers []models.MessageHeader) error {
 	// Defensive: check if requested partition exists
 	if partition >= 0 {
 		partitions, err := c.client.Partitions(topic)
@@ -526,7 +527,7 @@ func (c *Client) Produce(topic, key string, value []byte, partition int32, heade
 }
 
 // Alternative: Create a producer with specific partitioner configuration
-func (c *Client) ProduceWithCustomPartitioner(topic, key string, value []byte, partition int32, headers []MessageHeader) error {
+func (c *Client) ProduceWithCustomPartitioner(topic, key string, value []byte, partition int32, headers []models.MessageHeader) error {
 	// Create a custom config for this producer with manual partitioner
 	producerConfig := *c.config // Copy the config
 	producerConfig.Producer.Partitioner = sarama.NewManualPartitioner
@@ -671,7 +672,7 @@ func (c *Client) ClearTopicMessagesWithRetention(topic string) error {
 }
 
 // GetBrokers returns broker information
-func (c *Client) GetBrokers() ([]BrokerInfo, error) {
+func (c *Client) GetBrokers() ([]models.Broker, error) {
 	brokers := c.client.Brokers()
 	topicNames, err := c.client.Topics()
 	if err != nil {
@@ -695,7 +696,7 @@ func (c *Client) GetBrokers() ([]BrokerInfo, error) {
 			}
 		}
 	}
-	var infos []BrokerInfo
+	var infos []models.Broker
 	for _, b := range brokers {
 		addr := b.Addr()
 		id := b.ID()
@@ -707,7 +708,7 @@ func (c *Client) GetBrokers() ([]BrokerInfo, error) {
 				port = parsed
 			}
 		}
-		infos = append(infos, BrokerInfo{
+		infos = append(infos, models.Broker{
 			ID:           id,
 			Host:         host,
 			Port:         int32(port),
@@ -722,7 +723,7 @@ func (c *Client) GetBrokers() ([]BrokerInfo, error) {
 }
 
 // GetConsumers returns consumer group information
-func (c *Client) GetConsumers() ([]ConsumerGroupInfo, error) {
+func (c *Client) GetConsumers() ([]models.ConsumerGroup, error) {
 	if c.admin == nil {
 		return nil, fmt.Errorf("sarama admin client not initialized")
 	}
@@ -730,7 +731,7 @@ func (c *Client) GetConsumers() ([]ConsumerGroupInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	var infos []ConsumerGroupInfo
+	var infos []models.ConsumerGroup
 	for groupID := range groups {
 		desc, err := c.admin.DescribeConsumerGroups([]string{groupID})
 		if err != nil || len(desc) == 0 {
@@ -740,7 +741,7 @@ func (c *Client) GetConsumers() ([]ConsumerGroupInfo, error) {
 		for _, member := range cg.Members {
 			assignment, err := member.GetMemberAssignment()
 			if err != nil {
-				infos = append(infos, ConsumerGroupInfo{
+				infos = append(infos, models.ConsumerGroup{
 					GroupID:    groupID,
 					MemberID:   member.MemberId,
 					Topics:     []string{},
@@ -755,7 +756,7 @@ func (c *Client) GetConsumers() ([]ConsumerGroupInfo, error) {
 				topics = append(topics, topic)
 				partitions = append(partitions, parts...)
 			}
-			infos = append(infos, ConsumerGroupInfo{
+			infos = append(infos, models.ConsumerGroup{
 				GroupID:    groupID,
 				MemberID:   member.MemberId,
 				Topics:     topics,

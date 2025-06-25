@@ -56,9 +56,9 @@ This application provides a comprehensive set of tools for managing and monitori
 ├── backend/                  # Go backend API for Kafka operations and authentication
 │   ├── internals/            # Internal Go packages
 │   │   ├── api/              # API route handlers (auth, handlers)
-│   │   ├── kafka/            # Kafka client logic and interfaces (using Sarama)
+│   │   ├── kafka/            # Kafka client logic and service interfaces (using Sarama)
 │   │   ├── middleware/       # JWT authentication and bootstrap middleware
-│   │   ├── models/           # Data models (e.g., Topic)
+│   │   ├── models/           # Core Kafka data models (Message, Topic, Partition, Broker, ConsumerGroup, etc.)
 │   │   └── utils/            # Utility functions (CSV, errors, constants, responses)
 │   ├── src/                  # Main entry point (main.go) and data storage
 │   │   └── data/             # User data (users.csv)

@@ -2,6 +2,7 @@ package api
 
 import (
 	"backend/internals/kafka"
+	"backend/internals/models"
 	"net/http"
 	"strconv"
 
@@ -85,9 +86,9 @@ func ProduceMessage(c *gin.Context) {
 	}
 
 	// Convert headers to Kafka MessageHeader type
-	headers := make([]kafka.MessageHeader, len(body.Headers))
+	headers := make([]models.MessageHeader, len(body.Headers))
 	for i, h := range body.Headers {
-		headers[i] = kafka.MessageHeader{
+		headers[i] = models.MessageHeader{
 			Key:   h.Key,
 			Value: h.Value,
 		}
