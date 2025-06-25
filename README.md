@@ -12,7 +12,8 @@ A web-based UI for managing and monitoring Apache Kafka clusters, built with Go 
 
 - [Features](#features)
 - [Project Structure](#project-structure)
-- [Technology Stack](#technology-stack)
+- [Backend (Go)](#backend-go)
+- [Frontend (React)](#frontend-react)
 - [Prerequisites](#prerequisites)
 - [Installation & Setup](#installation--setup)
 - [Usage](#usage)
